@@ -1,6 +1,10 @@
 /* カレンダー全体のスタイル */
 .react-calendar {
-  max-width: 100%;
+  min-width: 350px; /* 必要に応じて調整 */
+  min-height: 380px; /* 必要に応じて調整 */
+  max-width: 500px; /* お好みで */
+  max-height: 500px; /* お好みで */
+  box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #554d4d;
   border-radius: 12px;
@@ -175,4 +179,7 @@ button:hover {
   align-items: center; /* 横中央 */
   justify-content: center; /* 縦中央 */
   background: #fafdff; /* お好みで背景色 */
+}
+.react-calendar__navigation__label {
+  pointer-events: none;
 }

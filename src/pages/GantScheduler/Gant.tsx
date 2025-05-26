@@ -6,15 +6,28 @@ import toISOStringWithTimezone from "./JTZ";
 
 const plans = [
   {
-    curriculum: "債券数学",
+    curriculum: "朝会",
     place: "セミB",
     date: "2025-05-27",
+    startTime: "9:00",
+    endTime: "9:30",
     teacher: "百田",
   },
   {
+    curriculum: "債券数学",
+    place: "セミB",
+    date: "2025-05-27",
+    startTime: "9:30",
+    endTime: "18:00",
+    teacher: "百田",
+  },
+
+  {
     curriculum: "デリバティブ数学",
-    place: "セミ",
+    place: "セミC",
     date: "2025-05-28",
+    startTime: "9:30",
+    endTime: "18:00",
     teacher: "百田",
   },
 ];
@@ -23,6 +36,28 @@ const MyCalendar = () => {
   const [value, setValue] = useState<Date>(new Date());
   const [activeStartDate, setActiveStartDate] = useState<Date>(new Date());
   const [popupDate, setPopupDate] = useState<Date | null>(null);
+
+  function findLongestPlanByDate(dateStr: string) {
+    // 指定日付の予定をすべて抽出
+    const dayPlans = plans.filter(
+      (p) => p.date === dateStr && p.startTime && p.endTime
+    );
+    if (dayPlans.length === 0)
+      return plans.find((p) => p.date === dateStr) || null;
+
+    // 時間差（分）を計算
+    const getMinutes = (time: string) => {
+      const [h, m] = time.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    // 最大時間差の予定を返す
+    return dayPlans.reduce((max, plan) => {
+      const diff = getMinutes(plan.endTime) - getMinutes(plan.startTime);
+      const maxDiff = getMinutes(max.endTime) - getMinutes(max.startTime);
+      return diff > maxDiff ? plan : max;
+    });
+  }
 
   const handleToday = () => {
     const today = new Date();
@@ -52,8 +87,8 @@ const MyCalendar = () => {
     setPopupDate(null);
   };
 
-  const findPlanByDate = (dateStr: string) =>
-    plans.find((p) => p.date === dateStr);
+  // const findPlanByDate = (dateStr: string) =>
+  //   plans.find((p) => p.date === dateStr);
 
   const today = new Date();
   const tomorrow = new Date(today);
@@ -62,8 +97,8 @@ const MyCalendar = () => {
   const todayStr = toISOStringWithTimezone(today).slice(0, 10);
   const tomorrowStr = toISOStringWithTimezone(tomorrow).slice(0, 10);
 
-  const todayPlan = findPlanByDate(todayStr);
-  const tomorrowPlan = findPlanByDate(tomorrowStr);
+  const todayPlan = findLongestPlanByDate(todayStr);
+  const tomorrowPlan = findLongestPlanByDate(tomorrowStr);
 
   return (
     <div className="calendar-center-root">
@@ -91,7 +126,7 @@ const MyCalendar = () => {
         </div>
       </div>
       <button onClick={handleToday}>今日</button>
-      <div style={{ width: "90vw", display: "flex", justifyContent: "center" }}>
+      <div style={{ width: "95vw", display: "flex", justifyContent: "center" }}>
         <Calendar
           value={value}
           onClickDay={handleClickDay}
@@ -108,7 +143,7 @@ const MyCalendar = () => {
               {"日月火水木金土"[popupDate.getDay()]})
             </div>
             {(() => {
-              const plan = findPlanByDate(
+              const plan = findLongestPlanByDate(
                 toISOStringWithTimezone(popupDate).slice(0, 10)
               );
               return plan ? (
