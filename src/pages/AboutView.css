@@ -1,0 +1,42 @@
+/* Wrapper のスタイル */
+.wrapper {
+  width: 100%;
+  margin: 4px;
+}
+
+/* Grid のスタイル */
+.first-grid {
+  display: grid;
+  grid-template-columns: 50px calc(100% - 50px);
+}
+
+/* 時間軸のスタイル */
+.hour-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.time-block {
+  padding: 5px;
+  border: 1px solid black;
+  text-align: center;
+}
+
+/* 曜日のスタイル */
+.day-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.day-block {
+  padding: 5px;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.days-grid {
+  display: "grid";
+  grid-template-columns: "repeat(7, 1fr)";
+}
