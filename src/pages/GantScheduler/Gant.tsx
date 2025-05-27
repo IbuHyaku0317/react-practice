@@ -12,6 +12,7 @@ const plans = [
     startTime: "9:00",
     endTime: "9:30",
     teacher: "百田",
+    color: "#ff0000",
   },
   {
     curriculum: "債券数学",
@@ -20,6 +21,7 @@ const plans = [
     startTime: "9:30",
     endTime: "18:00",
     teacher: "百田",
+    color: "#ff0000",
   },
 
   {
@@ -148,7 +150,12 @@ const MyCalendar = () => {
               );
               return plan ? (
                 <>
-                  <div>カリキュラム：{plan.curriculum}</div>
+                  <div>
+                    カリキュラム：
+                    <span style={{ color: plan.color ?? "#000" }}>
+                      {plan.curriculum}
+                    </span>
+                  </div>
                   <div>会場：{plan.place}</div>
                   <div>担当教員：{plan.teacher}</div>
                 </>

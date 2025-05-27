@@ -1,0 +1,127 @@
+CREATE TABLE schedule_table(
+    id: SERIAL PRIMARY KEY,
+    group: VARCHAR(20) NOT NULL,
+    curriculum: VARCHAR(30) NOT NULL,
+    start_time: TIMESTAMP,
+    end_time: TIMESTAMP,
+    location: VARCHAR(30),
+    color: VARCHAR(10) NOT NULL
+);
+
+#グループ登録画面で作成
+CREATE TABLE group_table(
+    id: SERIAL PRIMARY KEY,
+    name: VARCHAR(20) NOT NULL,
+    size: INTEGER
+);
+
+#カリキュラム登録画面で作成、colorはカリキュラム登録時に決めたい
+CREATE TABLE curriculum_table(
+    id: SERIAL RIMARY KEY,
+    division: VARCHAR(40) NOT NULL,
+    name: VARCHAR(30) NOT NULL,
+    days: INTEGER NOT NULL,
+    teacher: VARCHAR(30) NOT NULL,
+    color: VARCHAR(10) NOT NULL
+)
+
+#中間テーブル
+CREATE TABLE curriculum_group_table(
+    curriculum_id INTEGER REFERENCES curriculum_table(id),
+    group_id INTEGER REFERENCES group_table(id),
+    PRIMARY KEY (curriculum_id, group_id)
+)
+
+#teacherはカリキュラム登録画面で、curriculumに紐づけてあるため、それを参照
+SELECT
+  s.*,
+  c.teacher
+FROM
+  schedule_table s
+  JOIN curriculum_table c ON s.curriculum = c.name;
+
+#location(会場)は会場登録画面で作成
+CREATE TABLE location_table(
+    id: SERIAL PRIMARY KEY,
+    name: VARCHAR(30), NOT NULL,
+    capa: INTEGER NOT NULL
+)
+
+#ユーザー登録はユーザー登録画面で登録する
+CREATE TABLE user_table(
+    id: PRIMARY KEY,
+    name: VARCHAR(30) NOT NULL,
+)
+
+#ユーザーと所属グループを結び付ける中間テーブル
+CREATE TABLE user_group_table(
+    user_id: INTEGER REFERENCES user_table(id),
+    group_id: INTEGER REFERENCES group_table(id),
+    PRIMARY KEY (user_id, group_id)
+)
+
+閲覧者HOME画面
+
+　・今日のカリキュラムと場所の表示
+　　schedule_tableからその人のグループと、start_timeの日付が
+　　今日の日付でフィルターをかけたデータをとってきて、
+　　そこから、時間が最も長いものを表示する
+SELECT
+  s.*,
+  c.teacher
+FROM
+  schedule_table s
+  JOIN curriculum_table c ON s.curriculum = c.name
+WHERE
+  s.group IN (
+    SELECT g.name
+    FROM user_group_table ug
+    JOIN group_table g ON ug.group_id = g.id
+    WHERE ug.user_id = {ユーザーID}
+  )
+  AND DATE(s.start_time) = CURRENT_DATE
+ORDER BY
+  EXTRACT(EPOCH FROM (s.end_time - s.start_time)) DESC
+LIMIT 1;
+
+　・明日のカリキュラムと場所の表示はほぼ同様
+　
+　・ポップアップの中身のデータは以下のクエリかな？
+SELECT
+  s.*,
+  c.teacher
+FROM
+  schedule_table s
+  JOIN curriculum_table c ON s.curriculum = c.name
+WHERE
+  s.group IN (
+    SELECT g.name
+    FROM user_group_table ug
+    JOIN group_table g ON ug.group_id = g.id
+    WHERE ug.user_id = {ユーザーID}
+  )
+  AND DATE(s.start_time) = 指定した日の日付
+
+  概略スケジュール画面
+  　・カリキュラム欄のデータは、curriculum_tableからdivisionでフィルターした
+  　　データを取ってくる
+
+  　・グループ名の列及び、チェックボックスは、group_tableに登録されているデータ
+  　
+  　・登録して、更新ボタンを押したら、schedule_tableの型にあった、データがschedule_tableに
+  　　登録される
+
+  　・整合性チェックテーブルのデータはcurriculum_tableのdaysの値に対して、schedule_tableの中に、
+  　　そのカリキュラムのscheduleがグループごとにいくつあるかで判定
+
+  詳細スケジュール画面
+  　・場所の行のドロップダウンは、location_tableを参照
+
+  　・カリキュラムの行に登録されているカリキュラムはschedule_tableからその日の、
+  　　そのグループでフィルターしたスケジュールから朝会と、夕会をぬかしたもの
+
+  　・時間軸の所に登録されているscheduleデータの時間や、場所などを変更し、更新ボタンを押したら、
+  　　そのscheduleのデータを更新する
+  　　
+　
+
