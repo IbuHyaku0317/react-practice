@@ -12,6 +12,8 @@ import { IgrSpreadsheetModule } from "igniteui-react-spreadsheet";
 import Edit from "./pages/append.tsx";
 
 import MyCalendar from "./pages/GantScheduler/Gant.tsx";
+import Box from "./pages/box.jsx";
+import Boxlike from "./pages/box.jsx";
 IgrExcelModule.register();
 IgrSpreadsheetModule.register();
 
@@ -23,6 +25,7 @@ function App() {
         <Route path="/save" element={<Save />} />
         <Route path="/append" element={<Edit />} />
         <Route path="/aiueo" element={<MyCalendar />} />
+        <Route path="/box" element={<Boxlike />} />
       </Routes>
     </Router>
   );
