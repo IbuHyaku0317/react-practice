@@ -1,64 +1,60 @@
 import { useState } from "react";
 import Calendar from "react-calendar";
 import "./ScheduleTimeline.css";
-import { CurrencyBitcoin } from "@mui/icons-material";
+import { CurrencyBitcoin, PlayLesson } from "@mui/icons-material";
 import toISOStringWithTimezone from "./JTZ";
 
+// start_time, end_time を "YYYY-MM-DD HH:MM" 形式に統一
 const plans = [
   {
-    curriculum: "朝会",
-    place: "セミB",
-    date: "2025-05-27",
-    startTime: "9:00",
-    endTime: "9:30",
-    teacher: "百田",
-    color: "#ff0000",
-  },
-  {
+    id: 1,
+    group: "A",
     curriculum: "債券数学",
-    place: "セミB",
-    date: "2025-05-27",
-    startTime: "9:30",
-    endTime: "18:00",
+    location: "セミB",
+    start_time: "2025-06-01 09:30",
+    end_time: "2025-06-01 18:00",
     teacher: "百田",
     color: "#ff0000",
   },
-
   {
-    curriculum: "デリバティブ数学",
-    place: "セミC",
-    date: "2025-05-28",
-    startTime: "9:30",
-    endTime: "18:00",
+    id: 2,
+    group: "B",
+    curriculum: "React-hands-on + generative AI",
+    location: "セミC",
+    start_time: "2025-06-01 03:30",
+    end_time: "2025-06-01 12:00",
     teacher: "百田",
+    color: "#ff0000",
+  },
+  {
+    id: 3,
+    group: "A",
+    curriculum: "朝会",
+    location: "セミB",
+    start_time: "2025-06-02 09:00",
+    end_time: "2025-06-02 09:30",
+    teacher: "百田",
+    color: "#ff0000",
+  },
+  {
+    id: 4,
+    group: "A",
+    curriculum: "あいうえおあいうえお",
+    location: "セミB",
+    start_time: "2025-06-03 09:00",
+    end_time: "2025-06-03 09:30",
+    teacher: "百田",
+    color: "#ff0000",
   },
 ];
 
 const MyCalendar = () => {
   const [value, setValue] = useState<Date>(new Date());
   const [activeStartDate, setActiveStartDate] = useState<Date>(new Date());
-  const [popupDate, setPopupDate] = useState<Date | null>(null);
 
-  function findLongestPlanByDate(dateStr: string) {
-    // 指定日付の予定をすべて抽出
-    const dayPlans = plans.filter(
-      (p) => p.date === dateStr && p.startTime && p.endTime
-    );
-    if (dayPlans.length === 0)
-      return plans.find((p) => p.date === dateStr) || null;
-
-    // 時間差（分）を計算
-    const getMinutes = (time: string) => {
-      const [h, m] = time.split(":").map(Number);
-      return h * 60 + m;
-    };
-
-    // 最大時間差の予定を返す
-    return dayPlans.reduce((max, plan) => {
-      const diff = getMinutes(plan.endTime) - getMinutes(plan.startTime);
-      const maxDiff = getMinutes(max.endTime) - getMinutes(max.startTime);
-      return diff > maxDiff ? plan : max;
-    });
+  // 指定日付の予定をすべて返す
+  function findPlansByDate(dateStr: string) {
+    return plans.filter((p) => p.start_time.startsWith(dateStr));
   }
 
   const handleToday = () => {
@@ -82,95 +78,146 @@ const MyCalendar = () => {
 
   const handleClickDay = (date: Date) => {
     setValue(date);
-    setPopupDate(date);
   };
-
-  const handleClosePopup = () => {
-    setPopupDate(null);
-  };
-
-  // const findPlanByDate = (dateStr: string) =>
-  //   plans.find((p) => p.date === dateStr);
 
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
+  // "YYYY-MM-DD" 形式で日付を取得
   const todayStr = toISOStringWithTimezone(today).slice(0, 10);
   const tomorrowStr = toISOStringWithTimezone(tomorrow).slice(0, 10);
 
-  const todayPlan = findLongestPlanByDate(todayStr);
-  const tomorrowPlan = findLongestPlanByDate(tomorrowStr);
+  const todayPlan = plans.find((p) => p.start_time.startsWith(todayStr));
+  const futurePlans = plans.filter((p) => p.start_time.slice(0, 10) > todayStr);
+
+  const nextDate =
+    futurePlans.length > 0
+      ? futurePlans.map((p) => p.start_time.slice(0, 10)).sort()[0]
+      : null;
+
+  // 選択中の日付の予定リスト
+  const selectedDateStr = toISOStringWithTimezone(value).slice(0, 10);
+  const selectedPlans = findPlansByDate(selectedDateStr);
+
+  const nextDayPlans = nextDate
+    ? plans.filter((p) => p.start_time.startsWith(nextDate))
+    : [];
 
   return (
-    <div className="calendar-center-root">
-      <div className="today-date">
-        今日の日付：{today.toLocaleDateString()}(
-        {"日月火水木金土"[today.getDay()]})
-      </div>
-      <div style={{ display: "flex", gap: "32px", marginBottom: "24px" }}>
-        <div className="today-info-box">
-          <div className="today-curriculum">
-            今日のカリキュラム：{todayPlan ? todayPlan.curriculum : "なし"}
-          </div>
-          <div className="today-place">
-            今日の会場：{todayPlan ? todayPlan.place : "なし"}
-          </div>
+    <div
+      className="calendar-flex-root"
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        width: "100vw",
+        minHeight: "100vh",
+        background: "#fafdff",
+        padding: "40px 0",
+        boxSizing: "border-box",
+        gap: "48px",
+      }}
+    >
+      {/* カレンダー（左側） */}
+      <div style={{ width: "420px", minWidth: "350px", flexShrink: 0 }}>
+        <div className="today-date">
+          今日の日付：{today.toLocaleDateString()}(
+          {"日月火水木金土"[today.getDay()]})
         </div>
-        <div className="tomorrow-info-box">
-          <div className="tomorrow-curriculum">
-            明日のカリキュラム：
-            {tomorrowPlan ? tomorrowPlan.curriculum : "なし"}
-          </div>
-          <div className="tomorrow-place">
-            明日の会場：{tomorrowPlan ? tomorrowPlan.place : "なし"}
-          </div>
-        </div>
-      </div>
-      <button onClick={handleToday}>今日</button>
-      <div style={{ width: "95vw", display: "flex", justifyContent: "center" }}>
-        <Calendar
-          value={value}
-          onClickDay={handleClickDay}
-          activeStartDate={activeStartDate}
-          onActiveStartDateChange={handleActiveStartDate}
-          tileClassName={getTileClassName}
-        />
-      </div>
-      {popupDate && (
-        <div className="popup-overlay" onClick={handleClosePopup}>
-          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-            <div>
-              日付：{popupDate.toLocaleDateString()}(
-              {"日月火水木金土"[popupDate.getDay()]})
+        <div style={{ display: "flex", gap: "32px", marginBottom: "24px" }}>
+          <div className="today-info-box">
+            <div className="today-curriculum">
+              今日のカリキュラム：{todayPlan ? todayPlan.curriculum : "なし"}
             </div>
-            {(() => {
-              const plan = findLongestPlanByDate(
-                toISOStringWithTimezone(popupDate).slice(0, 10)
-              );
-              return plan ? (
-                <>
-                  <div>
-                    カリキュラム：
-                    <span style={{ color: plan.color ?? "#000" }}>
-                      {plan.curriculum}
+            <div className="today-place">
+              今日の会場：{todayPlan ? todayPlan.location : "なし"}
+            </div>
+          </div>
+          <div className="tomorrow-info-box">
+            <div className="tomorrow-curriculum">
+              翌営業日のカリキュラム：
+              {nextDayPlans.length > 0
+                ? nextDayPlans.map((p, i) => (
+                    <span key={i}>
+                      {p.curriculum}
+                      {i < nextDayPlans.length - 1 ? " / " : ""}
                     </span>
-                  </div>
-                  <div>会場：{plan.place}</div>
-                  <div>担当教員：{plan.teacher}</div>
-                </>
-              ) : (
-                <>
-                  <div>カリキュラム：無し</div>
-                  <div>会場：無し</div>
-                  <div>担当教員：</div>
-                </>
-              );
-            })()}
-            <button onClick={handleClosePopup}>閉じる</button>
+                  ))
+                : "なし"}
+            </div>
+            <div className="tomorrow-place">
+              翌営業日の会場：
+              {nextDayPlans.length > 0
+                ? nextDayPlans.map((p, i) => (
+                    <span key={i}>
+                      {p.location}
+                      {i < nextDayPlans.length - 1 ? " / " : ""}
+                    </span>
+                  ))
+                : "なし"}
+            </div>
           </div>
         </div>
-      )}
+        <button onClick={handleToday}>今日</button>
+        <div
+          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+        >
+          <Calendar
+            value={value}
+            onClickDay={handleClickDay}
+            activeStartDate={activeStartDate}
+            onActiveStartDateChange={handleActiveStartDate}
+            tileClassName={getTileClassName}
+          />
+        </div>
+      </div>
+      {/* 右側：押下した日付の詳細予定 */}
+      <div
+        className="popup-content"
+        style={{
+          minWidth: "220px",
+          maxWidth: "500px",
+          minHeight: "250px",
+          maxHeight: "400px",
+          background: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
+          marginTop: "320px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          padding: "24px",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            fontWeight: "bold",
+            fontSize: "1.2rem",
+            marginBottom: "12px",
+          }}
+        >
+          日付：{value.toLocaleDateString()}({"日月火水木金土"[value.getDay()]})
+        </div>
+        {selectedPlans.length > 0 ? (
+          selectedPlans
+            .slice()
+            .sort((a, b) => a.start_time.localeCompare(b.start_time))
+            .map((plan, idx) => (
+              <div key={idx} style={{ marginBottom: "12px" }}>
+                <span style={{ fontWeight: "bold" }}>
+                  {plan.start_time.slice(11, 16)}~{plan.end_time.slice(11, 16)}
+                </span>{" "}
+                <span style={{ color: plan.color }}>{plan.curriculum}</span>
+                <span>@{plan.location}</span>
+              </div>
+            ))
+        ) : (
+          <div>予定はありません</div>
+        )}
+      </div>
     </div>
   );
 };

@@ -14,6 +14,7 @@ import Edit from "./pages/append.tsx";
 import MyCalendar from "./pages/GantScheduler/Gant.tsx";
 import Box from "./pages/box.jsx";
 import Boxlike from "./pages/box.jsx";
+import GroupSelect from "./pages/GroupSelect.tsx";
 IgrExcelModule.register();
 IgrSpreadsheetModule.register();
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="/append" element={<Edit />} />
         <Route path="/aiueo" element={<MyCalendar />} />
         <Route path="/box" element={<Boxlike />} />
+        <Route path="/select" element={<GroupSelect />} />
       </Routes>
     </Router>
   );

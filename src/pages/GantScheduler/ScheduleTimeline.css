@@ -1,9 +1,9 @@
 /* カレンダー全体のスタイル */
 .react-calendar {
   min-width: 350px; /* 必要に応じて調整 */
-  min-height: 380px; /* 必要に応じて調整 */
+  min-height: 250px; /* 必要に応じて調整 */
   max-width: 500px; /* お好みで */
-  max-height: 500px; /* お好みで */
+  max-height: 400px; /* お好みで */
   box-sizing: border-box;
   background: #ffffff;
   border: 1px solid #554d4d;
@@ -53,12 +53,12 @@
 
 /* 各日付セル */
 .react-calendar__tile {
-  background: rgb(82, 148, 173);
+  background: none;
   border: none;
-  padding: 10px 0;
+  padding: 3px 0;
   text-align: center;
   border-radius: 6px;
-
+  color: #333;
   cursor: pointer;
 }
 
@@ -72,18 +72,18 @@
 }
 
 .react-calendar__tile:hover {
-  background-color: #000000;
+  background-color: #ffffff;
 }
 
 .react-calendar__tile--now {
-  background: #e0f7fa;
+  background: rgb(116, 204, 255);
   font-weight: bold;
-  border-radius: 50%;
+  border-radius: 8px;
 }
 
 .react-calendar__tile--active {
   background: #0078d4;
-  color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
   border-radius: 50%;
 }
 
@@ -101,19 +101,6 @@ button {
 
 button:hover {
   background-color: #177fcf;
-}
-
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
 }
 
 /* ポップアップ本体 */
@@ -172,14 +159,7 @@ button:hover {
   min-width: 300px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-.calendar-center-root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 横中央 */
-  justify-content: center; /* 縦中央 */
-  background: #fafdff; /* お好みで背景色 */
-}
+
 .react-calendar__navigation__label {
   pointer-events: none;
 }
